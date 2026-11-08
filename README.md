@@ -44,10 +44,34 @@ python run_pipeline.py --source m5 --m5-dir data --n-skus 60
 
 streamlit run app.py
 ```
-Outputs (`outputs/`): `results.md` (all tables + figures), `summary.json`, CSVs, PNG figures, `app_data.pkl` (dashboard cache).
-Add `--no-ets` to skip the slower ETS baseline.
+## Results (M5 Walmart, FOODS, store CA_1, 60 SKUs, 120-day untouched holdout)
 
-## Design decisions (good interview material)
+| Model | WAPE | RMSE |
+|---|---|---|
+| **LightGBM** | **0.563** | **3.23** |
+| ETS (rolling refit) | 0.567 | 3.32 |
+| MA-28 | 0.606 | 3.74 |
+| MA-7 | 0.612 | 3.78 |
+| Naive (lag-7) | 0.703 | 4.10 |
+
+* LightGBM cuts WAPE by 7.1% vs MA-28, but is essentially tied with ETS (0.563 vs 0.567; ETS is slightly ahead in CV).
+* ML beats MA-28 on 41/60 SKUs. On intermittent SKUs (>50% zero-demand days, 33 of 60) it is **worse** than MA-28 on average.
+* P10-P90 interval coverage is 77.3% (nominal 80%): intervals are slightly too narrow.
+
+### Inventory policies (1,000 Monte Carlo scenarios, 95% target service level)
+
+| Policy | Fill rate | Stockout days | Total cost |
+|---|---|---|---|
+| A: MA + fixed safety stock | 96.5% | 163.5 | 840.6 |
+| A+: MA + z·σ(demand) | 97.3% | 94.5 | 671.7 |
+| B1: ML + z·σ(error) | 96.7% | 117.9 | 751.5 |
+| B2: ML + quantile-spread SS | 97.1% | 105.6 | 700.8 |
+
+* B1 vs A: 28% fewer stockout days, 10.6% lower cost.
+* The stronger baseline A+ outperformed the ML policies on this data. M5 store-level demand is noisy and low-volume, and the normal-approximation safety stock fits it poorly.
+* Cost units are in $ with assumed holding / ordering / shortage parameters (not real plant data).
+
+## Design decisions 
 * **No leakage.** Every sales-derived feature for date *d* uses information ≤ *d − 7*; price / promo / festival / calendar are planned, known-in-advance covariates. `tests/test_core.py` proves it by perturbing recent sales and checking the feature row does not move.
 * **Forecast horizon = 7 days = max lead time.** The forecast used in the ROP at time *t* must exist at time *t*, so `build_policies` refuses `L > 7`.
 * **Validation:** expanding-window time-series CV (4 × 28 days) for model comparison, plus an untouched 120-day holdout. Forecast-error σ is calibrated on a separate window *before* the holdout, then the final model is refit.
