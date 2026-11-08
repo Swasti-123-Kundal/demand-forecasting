@@ -1,0 +1,98 @@
+{
+  "data": {
+    "source": "M5 (Walmart) - FOODS, store CA_1",
+    "currency": "$",
+    "synthetic": false,
+    "n_skus": 60,
+    "note": "promo = derived from price drops; festival = M5 US calendar events"
+  },
+  "n_skus": 60,
+  "test_days": 120,
+  "plant_params_ASSUMED": {
+    "lead_time_days": 7,
+    "lead_time_sd_days": 1.0,
+    "holding_rate_per_year": 0.25,
+    "unit_cost_ratio": 0.7,
+    "order_cost_frac": 0.05,
+    "shortage_cost_mult": 0.5,
+    "fixed_cover_days": 3.0,
+    "service_level": 0.95
+  },
+  "holdout_wape": {
+    "ml_point": 0.563,
+    "ets": 0.5672,
+    "ma28": 0.6061,
+    "ma7": 0.6117,
+    "naive": 0.7028
+  },
+  "holdout_bias": {
+    "ml_point": -0.0142,
+    "ets": -0.0065,
+    "ma28": -0.062,
+    "ma7": -0.0206,
+    "naive": -0.0146
+  },
+  "wape_reduction_vs_ma28_pct": 7.1,
+  "interval": {
+    "coverage_p10_p90": 0.7731944444444444,
+    "pinball_p10": 0.2778488731538828,
+    "pinball_p50": 0.7702722603995931,
+    "pinball_p90": 0.4776896045489992
+  },
+  "skus_ml_beats_ma28": "41/60",
+  "sim": {
+    "A: MA + fixed SS": {
+      "fill_rate": 0.9648,
+      "stockout_days": 163.548,
+      "avg_inv_value": 2656.9025,
+      "orders": 367.181,
+      "holding": 167.4213,
+      "ordering": 111.5621,
+      "shortage": 561.6052,
+      "total_cost": 840.5885
+    },
+    "A+: MA + sigma-demand SS": {
+      "fill_rate": 0.9726,
+      "stockout_days": 94.475,
+      "avg_inv_value": 2807.1167,
+      "orders": 380.346,
+      "holding": 176.8868,
+      "ordering": 112.9558,
+      "shortage": 381.8491,
+      "total_cost": 671.6916
+    },
+    "B1: ML + residual-sigma SS": {
+      "fill_rate": 0.9668,
+      "stockout_days": 117.941,
+      "avg_inv_value": 2734.1932,
+      "orders": 376.77,
+      "holding": 172.2916,
+      "ordering": 110.7809,
+      "shortage": 468.4395,
+      "total_cost": 751.512
+    },
+    "B2: ML + quantile-sigma SS": {
+      "fill_rate": 0.9713,
+      "stockout_days": 105.627,
+      "avg_inv_value": 2809.0024,
+      "orders": 384.027,
+      "holding": 177.0056,
+      "ordering": 111.959,
+      "shortage": 411.844,
+      "total_cost": 700.8086
+    }
+  },
+  "B1_vs_A": {
+    "stockout_days_pct": -27.9,
+    "cost_pct": -10.6,
+    "inventory_pct": 2.9,
+    "fill_rate_pts": 0.21
+  },
+  "B1_vs_Aplus": {
+    "stockout_days_pct": 24.8,
+    "cost_pct": 11.9,
+    "inventory_pct": -2.6,
+    "fill_rate_pts": -0.57
+  },
+  "runtime_sec": 80.3
+}
